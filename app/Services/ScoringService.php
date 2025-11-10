@@ -66,9 +66,9 @@ class ScoringService
     /**
      * Determine category based on total score
      */
-    public function determineCategory(int $totalScore): string
+    public function determineCategory(int $totalScore, int $maxScore = 280): string
     {
-        return Result::determineCategory($totalScore);
+        return Result::determineCategory($totalScore, $maxScore);
     }
 
     /**
@@ -106,6 +106,13 @@ class ScoringService
                 $suggestions[] = "Pertimbangkan untuk menunda pernikahan dan fokus pada peningkatan aspek-aspek yang masih kurang.";
                 $suggestions[] = "Konsultasikan dengan pasangan dan pertimbangkan konseling pra-nikah untuk membantu persiapan.";
                 break;
+                
+            case 'tidak_siap':
+                $suggestions[] = "Berdasarkan hasil kuesioner, tingkat kesiapan Anda untuk menikah masih perlu ditingkatkan secara signifikan.";
+                $suggestions[] = "Sangat disarankan untuk menunda pernikahan dan fokus pada pengembangan diri di berbagai aspek kehidupan.";
+                $suggestions[] = "Pertimbangkan untuk mengikuti program konseling pra-nikah, mengikuti pelatihan atau seminar tentang persiapan pernikahan, dan melakukan diskusi mendalam dengan pasangan tentang rencana masa depan.";
+                $suggestions[] = "Bangun fondasi yang kuat terlebih dahulu sebelum mengambil langkah menikah.";
+                break;
         }
         
         // Specific suggestions based on category scores
@@ -135,7 +142,7 @@ class ScoringService
         $totalScore = $this->calculateTotalScore($questionnaire);
         $maxScore = Question::active()->count() * 4;
         $percentage = $this->calculatePercentage($totalScore, $maxScore);
-        $category = $this->determineCategory($totalScore);
+        $category = $this->determineCategory($totalScore, $maxScore);
         $categoryScores = $this->calculateCategoryScores($questionnaire);
         
         // Create or update result

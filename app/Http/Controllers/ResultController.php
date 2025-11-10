@@ -20,6 +20,11 @@ class ResultController extends Controller
         $questionnaire = $result->questionnaire;
         $categoryScores = $result->category_scores ?? [];
 
+        // Calculate max score from percentage and total score
+        $maxScore = $result->percentage > 0 
+            ? round(($result->total_score / $result->percentage) * 100, 0)
+            : 280; // Default fallback
+
         $categoryLabels = [
             'keuangan' => 'Keuangan',
             'emosional' => 'Emosional',
@@ -30,6 +35,6 @@ class ResultController extends Controller
             'tanggung_jawab' => 'Tanggung Jawab',
         ];
 
-        return view('results.show', compact('result', 'questionnaire', 'categoryScores', 'categoryLabels'));
+        return view('results.show', compact('result', 'questionnaire', 'categoryScores', 'categoryLabels', 'maxScore'));
     }
 }

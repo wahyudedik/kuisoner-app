@@ -39,24 +39,41 @@ class Result extends Model
             'sangat_siap' => 'Sangat Siap',
             'cukup_siap' => 'Cukup Siap',
             'kurang_siap' => 'Kurang Siap',
+            'tidak_siap' => 'Tidak Siap',
             default => 'Tidak Diketahui',
         };
     }
 
     /**
      * Determine category based on score
+     * Range: 70-280 poin (70 soal × 1-4 poin per soal)
+     * Berdasarkan contoh:
+     * - 280/280 (100%) → Sangat Siap
+     * - 200/280 (71%) → Cukup Siap
+     * - 140/280 (50%) → Kurang Siap
+     * - 70/280 (25%) → Tidak Siap
+     * 
+     * Kategori:
+     * - Sangat Siap: >=72% (≥202 poin dari 280)
+     * - Cukup Siap: 50-71% (140-201 poin dari 280)
+     * - Kurang Siap: 25-49% (70-139 poin dari 280)
+     * - Tidak Siap: <25% (<70 poin dari 280)
      */
-    public static function determineCategory(int $totalScore): string
+    public static function determineCategory(int $totalScore, int $maxScore = 280): string
     {
-        if ($totalScore >= 87 && $totalScore <= 140) {
-            return 'sangat_siap';
-        } elseif ($totalScore >= 61 && $totalScore <= 86) {
-            return 'cukup_siap';
-        } elseif ($totalScore >= 35 && $totalScore <= 60) {
-            return 'kurang_siap';
-        }
+        // Calculate percentage
+        $percentage = $maxScore > 0 ? ($totalScore / $maxScore) * 100 : 0;
         
-        return 'kurang_siap'; // Default untuk skor di bawah 35
+        // Determine category based on percentage
+        if ($percentage >= 72) {
+            return 'sangat_siap';
+        } elseif ($percentage >= 50) {
+            return 'cukup_siap';
+        } elseif ($percentage >= 25) {
+            return 'kurang_siap';
+        } else {
+            return 'tidak_siap';
+        }
     }
 
     /**

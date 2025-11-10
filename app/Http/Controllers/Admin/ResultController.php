@@ -46,6 +46,7 @@ class ResultController extends Controller
             'sangat_siap' => 'Sangat Siap',
             'cukup_siap' => 'Cukup Siap',
             'kurang_siap' => 'Kurang Siap',
+            'tidak_siap' => 'Tidak Siap',
         ];
 
         return view('admin.results.index', compact('results', 'categoryLabels'));

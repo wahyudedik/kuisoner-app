@@ -80,12 +80,27 @@
                                     id="is_active" 
                                     value="1"
                                     {{ old('is_active', $question->is_active) ? 'checked' : '' }}
-                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <label for="is_active" class="ml-2 block text-sm text-gray-700">
+                                    {{ !$canActivate && !$question->is_active ? 'disabled' : '' }}
+                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ !$canActivate && !$question->is_active ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <label for="is_active" class="ml-2 block text-sm text-gray-700 {{ !$canActivate && !$question->is_active ? 'text-gray-400' : '' }}">
                                     Aktifkan pertanyaan ini
                                 </label>
                             </div>
-                            <p class="mt-1 text-sm text-gray-500">Pertanyaan yang tidak aktif tidak akan muncul dalam kuesioner</p>
+                            @if(!$canActivate && !$question->is_active)
+                                <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                                    <p class="text-sm text-yellow-800">
+                                        <strong>Peringatan:</strong> Maksimal 70 soal aktif. Saat ini sudah ada <strong>{{ $activeCount }}</strong> soal aktif.
+                                        Tidak dapat mengaktifkan soal ini karena sudah mencapai batas maksimal.
+                                    </p>
+                                </div>
+                            @else
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Pertanyaan yang tidak aktif tidak akan muncul dalam kuesioner
+                                </p>
+                            @endif
+                            <p class="mt-1 text-xs text-gray-400">
+                                Status saat ini: {{ $activeCount }}/{{ $maxActiveQuestions }} soal aktif
+                            </p>
                         </div>
 
                         <!-- Buttons -->

@@ -61,13 +61,16 @@ Setiap jawaban memiliki nilai poin:
 
 ### Interpretasi Hasil
 
-Berdasarkan total skor yang diperoleh:
+Berdasarkan total skor yang diperoleh (dari 70-280 poin):
 
-| Skor | Kategori | Deskripsi |
-|------|----------|-----------|
-| **87-140 poin** | **Sangat Siap** | Calon pasangan memiliki tingkat kesiapan yang sangat baik dalam berbagai aspek kehidupan berumah tangga |
-| **61-86 poin** | **Cukup Siap** | Calon pasangan memiliki tingkat kesiapan yang cukup, namun masih ada beberapa aspek yang perlu ditingkatkan |
-| **35-60 poin** | **Kurang Siap** | Calon pasangan perlu meningkatkan kesiapan di berbagai aspek sebelum menikah |
+| Persentase | Skor | Kategori | Deskripsi |
+|------------|------|----------|-----------|
+| **≥72%** | **≥202 poin** | **Sangat Siap** | Calon pasangan memiliki tingkat kesiapan yang sangat baik dalam berbagai aspek kehidupan berumah tangga |
+| **50-71%** | **140-201 poin** | **Cukup Siap** | Calon pasangan memiliki tingkat kesiapan yang cukup, namun masih ada beberapa aspek yang perlu ditingkatkan |
+| **25-49%** | **70-139 poin** | **Kurang Siap** | Calon pasangan perlu meningkatkan kesiapan di berbagai aspek sebelum menikah |
+| **<25%** | **<70 poin** | **Tidak Siap** | Calon pasangan sangat perlu meningkatkan kesiapan di berbagai aspek sebelum menikah, disarankan untuk menunda pernikahan |
+
+**Catatan**: Kategori ditentukan berdasarkan persentase dari skor maksimal (280 poin). Sistem menggunakan 4 kategori untuk memberikan evaluasi yang lebih detail dan akurat.
 
 ## ✨ Fitur Utama
 

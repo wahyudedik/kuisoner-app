@@ -19,7 +19,7 @@
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Total Skor</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $result->total_score }}</p>
-                            <p class="text-sm text-gray-500">dari 280 poin</p>
+                            <p class="text-sm text-gray-500">dari {{ $maxScore ?? 280 }} poin</p>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Persentase</p>
@@ -28,12 +28,14 @@
                         <div class="text-center p-4 rounded-lg 
                             @if($result->category === 'sangat_siap') bg-green-50
                             @elseif($result->category === 'cukup_siap') bg-yellow-50
+                            @elseif($result->category === 'kurang_siap') bg-orange-50
                             @else bg-red-50
                             @endif">
                             <p class="text-sm text-gray-600 mb-1">Kategori</p>
                             <p class="text-2xl font-bold 
                                 @if($result->category === 'sangat_siap') text-green-700
                                 @elseif($result->category === 'cukup_siap') text-yellow-700
+                                @elseif($result->category === 'kurang_siap') text-orange-700
                                 @else text-red-700
                                 @endif">
                                 {{ $result->category_label }}
@@ -57,12 +59,19 @@
                                 </svg>
                                 Cukup Siap
                             </span>
-                        @else
-                            <span class="inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold bg-red-100 text-red-800">
+                        @elseif($result->category === 'kurang_siap')
+                            <span class="inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold bg-orange-100 text-orange-800">
                                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
                                 Kurang Siap
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold bg-red-100 text-red-800">
+                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Tidak Siap
                             </span>
                         @endif
                     </div>

@@ -61,8 +61,11 @@ class QuestionController extends Controller
         ];
 
         $maxOrder = Question::max('order') ?? 0;
+        $activeCount = Question::getActiveCount();
+        $maxActiveQuestions = 70;
+        $canActivate = $activeCount < $maxActiveQuestions;
 
-        return view('admin.questions.create', compact('categories', 'maxOrder'));
+        return view('admin.questions.create', compact('categories', 'maxOrder', 'activeCount', 'maxActiveQuestions', 'canActivate'));
     }
 
     /**
@@ -77,15 +80,36 @@ class QuestionController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Question::create([
+        $maxActiveQuestions = 70;
+        $isActive = $request->has('is_active') ? true : false;
+        $currentActiveCount = Question::getActiveCount();
+
+        // If trying to activate a new question and already have 70 active
+        if ($isActive && $currentActiveCount >= $maxActiveQuestions) {
+            return redirect()->route('admin.questions.index')
+                ->with('warning', "Peringatan: Maksimal 70 soal aktif telah tercapai. Saat ini sudah ada <strong>{$currentActiveCount}/70</strong> soal aktif. Pertanyaan baru akan dibuat dalam status tidak aktif. Soal ke-71 dan seterusnya akan otomatis dinonaktifkan.");
+        }
+
+        // Create question (will be inactive if exceeds limit)
+        $question = Question::create([
             'question_text' => $validated['question_text'],
             'category' => $validated['category'],
             'order' => $validated['order'],
-            'is_active' => $request->has('is_active') ? true : false,
+            'is_active' => ($isActive && $currentActiveCount < $maxActiveQuestions) ? true : false,
         ]);
 
+        // Ensure max active questions
+        $result = Question::ensureMaxActiveQuestions($maxActiveQuestions);
+
+        $message = 'Pertanyaan berhasil ditambahkan.';
+        if ($result['deactivated_count'] > 0) {
+            $message = "Pertanyaan berhasil ditambahkan. <strong>{$result['deactivated_count']} soal dinonaktifkan</strong> karena melebihi batas 70 soal aktif. Soal ke-71 dan seterusnya otomatis dinonaktifkan berdasarkan urutan.";
+            return redirect()->route('admin.questions.index')
+                ->with('warning', $message);
+        }
+
         return redirect()->route('admin.questions.index')
-            ->with('success', 'Pertanyaan berhasil ditambahkan.');
+            ->with('success', $message);
     }
 
     /**
@@ -111,7 +135,11 @@ class QuestionController extends Controller
             'tanggung_jawab' => 'Tanggung Jawab',
         ];
 
-        return view('admin.questions.edit', compact('question', 'categories'));
+        $activeCount = Question::getActiveCount();
+        $maxActiveQuestions = 70;
+        $canActivate = ($question->is_active) || ($activeCount < $maxActiveQuestions);
+
+        return view('admin.questions.edit', compact('question', 'categories', 'activeCount', 'maxActiveQuestions', 'canActivate'));
     }
 
     /**
@@ -126,15 +154,37 @@ class QuestionController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        $maxActiveQuestions = 70;
+        $wantToActivate = $request->has('is_active') ? true : false;
+        $currentlyActive = $question->is_active;
+        $currentActiveCount = Question::getActiveCount();
+
+        // If trying to activate and already have 70 active (and this question is not currently active)
+        if ($wantToActivate && !$currentlyActive && $currentActiveCount >= $maxActiveQuestions) {
+            return redirect()->route('admin.questions.index')
+                ->with('warning', "Peringatan: Maksimal 70 soal aktif. Saat ini sudah ada <strong>{$currentActiveCount}/70</strong> soal aktif. Tidak dapat mengaktifkan soal ini karena sudah mencapai batas maksimal.");
+        }
+
+        // Update question
         $question->update([
             'question_text' => $validated['question_text'],
             'category' => $validated['category'],
             'order' => $validated['order'],
-            'is_active' => $request->has('is_active') ? true : false,
+            'is_active' => $wantToActivate,
         ]);
 
+        // Ensure max active questions (will deactivate excess questions)
+        $result = Question::ensureMaxActiveQuestions($maxActiveQuestions);
+
+        $message = 'Pertanyaan berhasil diperbarui.';
+        if ($result['deactivated_count'] > 0) {
+            $message = "Pertanyaan berhasil diperbarui. <strong>{$result['deactivated_count']} soal dinonaktifkan</strong> karena melebihi batas 70 soal aktif. Soal ke-71 dan seterusnya otomatis dinonaktifkan berdasarkan urutan.";
+            return redirect()->route('admin.questions.index')
+                ->with('warning', $message);
+        }
+
         return redirect()->route('admin.questions.index')
-            ->with('success', 'Pertanyaan berhasil diperbarui.');
+            ->with('success', $message);
     }
 
     /**
@@ -186,10 +236,30 @@ class QuestionController extends Controller
         ]);
 
         try {
+            $maxActiveQuestions = 70;
+            $activeCountBefore = Question::getActiveCount();
+            
+            // Import questions
             Excel::import(new QuestionsImport, $request->file('file'));
+            
+            // Ensure max active questions (deactivate excess)
+            $result = Question::ensureMaxActiveQuestions($maxActiveQuestions);
+            
+            $activeCountAfter = Question::getActiveCount();
+            $message = "Pertanyaan berhasil diimpor dari Excel.";
+            
+            if ($result['deactivated_count'] > 0) {
+                $message = "Pertanyaan berhasil diimpor. <strong>{$result['deactivated_count']} soal dinonaktifkan</strong> karena melebihi batas maksimal 70 soal aktif. Soal ke-71 dan seterusnya otomatis dinonaktifkan berdasarkan urutan.";
+                return redirect()->route('admin.questions.index')
+                    ->with('warning', $message);
+            }
+            
+            if ($result['total_active'] >= $maxActiveQuestions) {
+                $message .= " Maksimal 70 soal aktif telah tercapai. Soal ke-71 dan seterusnya otomatis dinonaktifkan.";
+            }
 
             return redirect()->route('admin.questions.index')
-                ->with('success', 'Pertanyaan berhasil diimpor dari Excel.');
+                ->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->route('admin.questions.import.show')
                 ->with('error', 'Gagal mengimpor data: ' . $e->getMessage());

@@ -42,6 +42,7 @@ class DashboardController extends Controller
             'sangat_siap' => 'Sangat Siap',
             'cukup_siap' => 'Cukup Siap',
             'kurang_siap' => 'Kurang Siap',
+            'tidak_siap' => 'Tidak Siap',
         ];
 
         $readinessData = [
@@ -50,8 +51,9 @@ class DashboardController extends Controller
                 $readinessDistribution['sangat_siap'] ?? 0,
                 $readinessDistribution['cukup_siap'] ?? 0,
                 $readinessDistribution['kurang_siap'] ?? 0,
+                $readinessDistribution['tidak_siap'] ?? 0,
             ],
-            'colors' => ['#10b981', '#f59e0b', '#ef4444'], // green, yellow, red
+            'colors' => ['#10b981', '#f59e0b', '#f97316', '#ef4444'], // green, yellow, orange, red
         ];
 
         // Chart data: Average score per category (aspect)

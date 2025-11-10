@@ -39,8 +39,29 @@
                         </div>
                     </div>
 
+                    <!-- Warning Info -->
+                    <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                        <h4 class="text-sm font-semibold text-yellow-900 mb-2 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            Peringatan: Batas Maksimal Soal Aktif
+                        </h4>
+                        <p class="text-xs text-yellow-800 mb-2">
+                            <strong>Maksimal 70 soal aktif.</strong> Jika setelah import jumlah soal aktif melebihi 70, maka:
+                        </p>
+                        <ul class="text-xs text-yellow-800 list-disc list-inside space-y-1">
+                            <li>Soal ke-71 dan seterusnya akan <strong>otomatis dinonaktifkan</strong></li>
+                            <li>Soal dinonaktifkan berdasarkan urutan (order) dari yang terkecil</li>
+                            <li>Hanya 70 soal pertama (berdasarkan urutan) yang akan tetap aktif</li>
+                        </ul>
+                        <p class="text-xs text-yellow-800 mt-2">
+                            Status saat ini: <strong>{{ \App\Models\Question::getActiveCount() }}/70</strong> soal aktif
+                        </p>
+                    </div>
+
                     <!-- Import Form -->
-                    <form action="{{ route('admin.questions.import.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.questions.import.store') }}" method="POST" enctype="multipart/form-data" id="importForm">
                         @csrf
 
                         <div class="mb-6">
@@ -70,6 +91,42 @@
                             </button>
                         </div>
                     </form>
+
+                    @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const form = document.getElementById('importForm');
+                            const activeCount = {{ \App\Models\Question::getActiveCount() }};
+                            const maxActive = 70;
+
+                            form.addEventListener('submit', function(e) {
+                                if (activeCount >= maxActive) {
+                                    e.preventDefault();
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Peringatan!',
+                                        html: `
+                                            <p>Maksimal 70 soal aktif telah tercapai.</p>
+                                            <p class="mt-2">Saat ini sudah ada <strong>${activeCount}/70</strong> soal aktif.</p>
+                                            <p class="mt-2">Soal ke-71 dan seterusnya akan <strong>otomatis dinonaktifkan</strong> setelah import.</p>
+                                            <p class="mt-2 text-sm text-gray-600">Apakah Anda ingin melanjutkan?</p>
+                                        `,
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#3b82f6',
+                                        cancelButtonColor: '#6b7280',
+                                        confirmButtonText: 'Ya, Lanjutkan Import',
+                                        cancelButtonText: 'Batal',
+                                        reverseButtons: true
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            form.submit();
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                    @endpush
                 </div>
             </div>
         </div>

@@ -41,12 +41,18 @@ class QuestionsImport implements ToModel, WithHeadingRow, WithValidation
         // Get max order if order not provided
         $order = isset($row['urutan']) && $row['urutan'] ? (int)$row['urutan'] : (Question::max('order') ?? 0) + 1;
 
-        // Determine is_active
-        $isActive = true;
+        // Determine is_active from Excel file
+        // Note: We'll activate based on Excel data, then ensureMaxActiveQuestions will handle deactivation
+        $wantToActivate = true;
+        
         if (isset($row['status_aktif'])) {
             $status = strtolower(trim($row['status_aktif']));
-            $isActive = in_array($status, ['aktif', '1', 'true', 'yes', 'y']);
+            $wantToActivate = in_array($status, ['aktif', '1', 'true', 'yes', 'y']);
         }
+
+        // Set is_active based on Excel data
+        // After import completes, ensureMaxActiveQuestions() will be called to deactivate excess
+        $isActive = $wantToActivate;
 
         return new Question([
             'question_text' => $row['pertanyaan'] ?? $row['question_text'] ?? '',

@@ -79,6 +79,7 @@ class ResultsExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'sangat_siap' => 'Sangat Siap',
             'cukup_siap' => 'Cukup Siap',
             'kurang_siap' => 'Kurang Siap',
+            'tidak_siap' => 'Tidak Siap',
         ];
 
         return [

@@ -77,4 +77,41 @@ class Question extends Model
     {
         return $query->where('category', $category);
     }
+
+    /**
+     * Ensure only 70 active questions (keep the first 70 by order)
+     */
+    public static function ensureMaxActiveQuestions(int $maxActive = 70): array
+    {
+        $activeQuestions = self::where('is_active', true)
+            ->orderBy('order')
+            ->get();
+
+        $totalActive = $activeQuestions->count();
+        $deactivatedCount = 0;
+
+        if ($totalActive > $maxActive) {
+            // Deactivate questions beyond the max limit
+            $questionsToDeactivate = $activeQuestions->slice($maxActive);
+            
+            foreach ($questionsToDeactivate as $question) {
+                $question->update(['is_active' => false]);
+                $deactivatedCount++;
+            }
+        }
+
+        return [
+            'total_active' => min($totalActive, $maxActive),
+            'deactivated_count' => $deactivatedCount,
+            'exceeds_limit' => $totalActive > $maxActive,
+        ];
+    }
+
+    /**
+     * Get count of active questions
+     */
+    public static function getActiveCount(): int
+    {
+        return self::where('is_active', true)->count();
+    }
 }

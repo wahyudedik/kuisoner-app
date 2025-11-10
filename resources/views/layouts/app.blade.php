@@ -84,11 +84,11 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'Peringatan!',
-                    text: '{{ session('warning') }}',
+                    html: '{!! session('warning') !!}',
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 4000,
+                    timer: 5000,
                     timerProgressBar: true
                 });
             @endif

@@ -37,6 +37,7 @@
                                     <option value="sangat_siap" {{ request('category') === 'sangat_siap' ? 'selected' : '' }}>Sangat Siap</option>
                                     <option value="cukup_siap" {{ request('category') === 'cukup_siap' ? 'selected' : '' }}>Cukup Siap</option>
                                     <option value="kurang_siap" {{ request('category') === 'kurang_siap' ? 'selected' : '' }}>Kurang Siap</option>
+                                    <option value="tidak_siap" {{ request('category') === 'tidak_siap' ? 'selected' : '' }}>Tidak Siap</option>
                                 </select>
                             </div>
 
@@ -122,6 +123,7 @@
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                     @if($result->category === 'sangat_siap') bg-green-100 text-green-800
                                                     @elseif($result->category === 'cukup_siap') bg-yellow-100 text-yellow-800
+                                                    @elseif($result->category === 'kurang_siap') bg-orange-100 text-orange-800
                                                     @else bg-red-100 text-red-800
                                                     @endif">
                                                     {{ $result->category_label }}
